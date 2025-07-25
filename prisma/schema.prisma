@@ -14,14 +14,30 @@ datasource db {
 }
 
 model User {
-  id        String  @id @default(cuid())
-  clerkId   String  @unique
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String   @unique
+  username  String?  @unique   // 👈 Optional & Unique
+
   firstName String?
   lastName  String?
   imageUrl  String?
-  email     String  @unique
-  name      String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  links     Link[]
+}
+
+model Link {
+  id        String   @id @default(cuid())
+  title     String
+  url       String
+  clickCount Int      @default(0)
+  userId    String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
