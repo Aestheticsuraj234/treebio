@@ -1,25 +1,24 @@
-import { Button } from "@/components/ui/button"
-import { onBoardUser } from "@/modules/auth/actions"
-import ClaimLinkForm from "@/modules/home/components/cliam-link-form"
+import { Button } from "@/components/ui/button";
+import { onBoardUser } from "@/modules/auth/actions";
+import ClaimLinkForm from "@/modules/home/components/cliam-link-form";
 
-import { UserButton } from "@clerk/nextjs"
-import { redirect } from "next/navigation"
+import { UserButton } from "@clerk/nextjs";
+import { redirect } from "next/navigation";
 
 export default async function Home() {
-  const user = await onBoardUser()
+  const user = await onBoardUser();
 
   if (!user.success) {
-    return redirect("/sign-in")
+    return redirect("/sign-in");
   }
 
   return (
     <div className="min-h-screen ">
       {/* Header */}
-    
 
       {/* Main Content */}
       <main className="flex flex-col max-w-4xl mx-auto px-6">
-        <section className="text-center space-y-8 py-16 md:py-24">
+        <section className="text-center space-y-8 py-32">
           {/* Hero Text */}
           <div className="space-y-6">
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-tight text-zinc-700 dark:text-zinc-100">
@@ -29,8 +28,9 @@ export default async function Home() {
             </h1>
 
             <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
-              Join 70M+ people using TreeBio for their link in bio. One link to help you share everything you create,
-              curate and sell from your social media profiles.
+              Join 70M+ people using TreeBio for their link in bio. One link to
+              help you share everything you create, curate and sell from your
+              social media profiles.
             </p>
           </div>
 
@@ -48,9 +48,7 @@ export default async function Home() {
             <ClaimLinkForm />
           </div>
         </section>
-
-      
       </main>
     </div>
-  )
+  );
 }

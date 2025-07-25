@@ -24,7 +24,7 @@ export const onBoardUser = async () => {
                 lastName: lastName || null,
                 imageUrl: imageUrl || null,
                 email: emailAddresses[0]?.emailAddress || "",
-                name: `${firstName || ''} ${lastName || ''}`.trim() || null,
+                
             },
             create: {
                 clerkId: id,
@@ -32,7 +32,7 @@ export const onBoardUser = async () => {
                 lastName: lastName || null,
                 imageUrl: imageUrl || null,
                 email: emailAddresses[0]?.emailAddress || "",
-                name: `${firstName || ''} ${lastName || ''}`.trim() || null,
+                
             }
         });
 
