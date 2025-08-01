@@ -15,6 +15,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useOGData } from "@/hooks/useOgData";
+import { cn } from "@/lib/utils";
 
 interface LinkCardProps {
   link: {
@@ -37,7 +38,7 @@ export const LinkCard: React.FC<LinkCardProps> = ({
 
   return (
     <Card className="group hover:shadow-md transition-all duration-200 border hover:border-purple-200">
-      <CardContent className="p-4">
+      <CardContent >
         <div className="flex items-start gap-3">
           <Button
             variant="ghost"
@@ -172,6 +173,7 @@ export const LinkFormWithPreview: React.FC<LinkFormWithPreviewProps> = ({
   onCancel,
   defaultValues,
 }) => {
+  const [isPending, setIsPending] = React.useState(false);
   const [url, setUrl] = React.useState(defaultValues?.url || "");
   const [title, setTitle] = React.useState(defaultValues?.title || "");
   const [description, setDescription] = React.useState(
@@ -194,7 +196,9 @@ export const LinkFormWithPreview: React.FC<LinkFormWithPreviewProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsPending(true);
     onSubmit({ title, url, description });
+    setIsPending(false);
   };
 
   return (
@@ -274,7 +278,7 @@ export const LinkFormWithPreview: React.FC<LinkFormWithPreviewProps> = ({
           </div>
 
           <div className="flex gap-2">
-            <Button size="sm" type="submit">
+            <Button size="sm" type="submit" className={cn(isPending && "pointer-events-none bg-black/20")} >
               {defaultValues ? "Update Link" : "Add Link"}
             </Button>
             <Button

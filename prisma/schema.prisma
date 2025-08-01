@@ -29,6 +29,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   links     Link[]
+  socialLinks SocialLink[]
 }
 
 model Link {
@@ -37,6 +38,18 @@ model Link {
   url       String
   description String? @db.VarChar(500) // 👈 Optional description with a max length of 500 characters
   clickCount Int      @default(0)
+  userId    String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SocialLink {
+  id        String   @id @default(cuid())
+  platform  String
+  url       String
   userId    String
 
   createdAt DateTime @default(now())
