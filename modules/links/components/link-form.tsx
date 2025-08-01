@@ -11,24 +11,23 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+
 import {
   Plus,
   Instagram,
   Youtube,
   Mail,
-  ExternalLink,
-  Grip,
   Archive,
   FolderPlus,
   Camera,
-  Trash2,
   Edit3,
+  X,
 } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
 import { createUserProfile } from "@/modules/profile/actions";
-import { createLinkByUser } from "../actions";
+import { createLinkByUser, deleteLink, editLink, addSocialLink, deleteSocialLink, editSocialLink } from "../actions";
 import { LinkCard, LinkFormWithPreview } from "./link-card";
+import { SocialLinkModal, SocialLinkFormData } from "./social-link-modal"; // Import the modal
 
 // Zod schemas
 const profileSchema = z.object({
@@ -71,7 +70,6 @@ const socialLinkSchema = z.object({
 
 export type ProfileFormData = z.infer<typeof profileSchema>;
 export type LinkFormData = z.infer<typeof linkSchema>;
-export type SocialLinkFormData = z.infer<typeof socialLinkSchema>;
 
 interface Link {
   id: string;
@@ -89,25 +87,36 @@ interface Profile {
   imageUrl?: string;
 }
 
-interface Props{
-  username:string;
-  bio:string;
-  link:{
-       id:string,
-            title:string,
-            description:string,
-            url:string,
-            clickCount:number,
-            createdAt:Date
-  }[]
+interface SocialLink {
+  id: string;
+  platform: "instagram" | "youtube" | "email";
+  url: string;
 }
 
-const LinkForm = ({ username, bio , link}: Props) => {
+interface Props {
+  username: string;
+  bio: string;
+  link: {
+    id: string;
+    title: string;
+    description: string;
+    url: string;
+    clickCount: number;
+    createdAt: Date;
+  }[];
+  socialLinks?: SocialLink[]; // Add social links prop
+}
+
+const LinkForm = ({ username, bio, link, socialLinks: initialSocialLinks = [] }: Props) => {
   const currentUser = useUser();
 
   const [isAddingLink, setIsAddingLink] = React.useState(false);
   const [editingProfile, setEditingProfile] = React.useState(false);
   const [links, setLinks] = React.useState<Link[]>(link || []);
+  const [userSocialLinks, setUserSocialLinks] = React.useState<SocialLink[]>(initialSocialLinks);
+  const [isSocialModalOpen, setIsSocialModalOpen] = React.useState(false);
+  const [editingSocialLink, setEditingSocialLink] = React.useState<SocialLink | null>(null);
+  
   const [profile, setProfile] = React.useState<Profile>({
     firstName: currentUser.user?.firstName || "",
     lastName: currentUser.user?.lastName || "",
@@ -117,6 +126,7 @@ const LinkForm = ({ username, bio , link}: Props) => {
       currentUser.user?.imageUrl ||
       `https://avatar.iran.liara.run/username?username=[${currentUser.user?.firstName}+${currentUser.user?.lastName}]`,
   });
+  const [editingLinkId, setEditingLinkId] = React.useState<string | null>(null);
 
   // Profile form
   const profileForm = useForm<ProfileFormData>({
@@ -136,15 +146,6 @@ const LinkForm = ({ username, bio , link}: Props) => {
       title: "",
       url: "",
       description: "",
-    },
-  });
-
-  // Social link form
-  const socialLinkForm = useForm<SocialLinkFormData>({
-    resolver: zodResolver(socialLinkSchema),
-    defaultValues: {
-      platform: "instagram",
-      url: "",
     },
   });
 
@@ -189,27 +190,123 @@ const LinkForm = ({ username, bio , link}: Props) => {
   };
 
   // Social link submit handler
-  const onSocialLinkSubmit = (data: SocialLinkFormData) => {
-    console.log("Social Link Data:", data);
-    toast.success(`${data.platform} link added successfully!`);
+  const onSocialLinkSubmit = async (data: SocialLinkFormData) => {
+    try {
+      if (editingSocialLink) {
+        // Edit existing social link
+        const result = await editSocialLink(data, editingSocialLink.id);
+        if (result?.sucess) {
+          setUserSocialLinks((prev) =>
+            prev.map((link) =>
+              link.id === editingSocialLink.id
+                ? { ...link, platform: data.platform, url: data.url }
+                : link
+            )
+          );
+          toast.success(`${data.platform} link updated successfully!`);
+        } else {
+          toast.error(result?.error || "Failed to update social link.");
+        }
+      } else {
+        // Add new social link
+        const result = await addSocialLink(data);
+        if (result?.sucess && result?.data) {
+          const newSocialLink: SocialLink = {
+            id: result.data.id,
+            platform: data.platform,
+            url: data.url,
+          };
+          setUserSocialLinks((prev) => [...prev, newSocialLink]);
+          toast.success(`${data.platform} link added successfully!`);
+        } else {
+          toast.error(result?.error || "Failed to add social link.");
+        }
+      }
+    } catch (error) {
+      console.error("Error saving social link:", error);
+      toast.error("Failed to save social link.");
+    } finally {
+      setEditingSocialLink(null);
+    }
   };
 
   // Delete link handler
-  const handleDeleteLink = (linkId: string) => {
-    setLinks((prev) => prev.filter((link) => link.id !== linkId));
-    toast.success("Link deleted successfully!");
+  const handleDeleteLink = async (linkId: string) => {
+    try {
+      // Delete the link
+      const deletedLink = await deleteLink(linkId);
+      console.log("Deleted Link:", deletedLink);
+      setLinks((prev) => prev.filter((link) => link.id !== linkId));
+      toast.success("Link deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting link:", error);
+      toast.error("Failed to delete link.");
+    }
   };
 
   // Edit link handler
   const handleEditLink = (linkId: string) => {
-    const link = links.find((l) => l.id === linkId);
-    if (link) {
-      linkForm.setValue("title", link.title);
-      linkForm.setValue("url", link.url);
-      linkForm.setValue("description", link.description || "");
-      setIsAddingLink(true);
-      // Remove the old link
-      setLinks((prev) => prev.filter((l) => l.id !== linkId));
+    setEditingLinkId(linkId);
+    setIsAddingLink(true);
+  };
+
+  const onEditLinkSubmit = async (data: LinkFormData) => {
+    if (!editingLinkId) return;
+    try {
+      const res = await editLink(data, editingLinkId);
+      if (res?.sucess) {
+        setLinks((prev) =>
+          prev.map((l) => (l.id === editingLinkId ? { ...l, ...data } : l))
+        );
+        toast.success("Link edited successfully!");
+      } else {
+        toast.error(res?.error || "Failed to edit link.");
+      }
+    } catch (error) {
+      console.error("Error editing link:", error);
+      toast.error("Failed to edit link.");
+    } finally {
+      setIsAddingLink(false);
+      setEditingLinkId(null);
+    }
+  };
+
+  // Social link handlers
+  const handleAddSocialLink = () => {
+    setEditingSocialLink(null);
+    setIsSocialModalOpen(true);
+  };
+
+  const handleEditSocialLink = (socialLink: SocialLink) => {
+    setEditingSocialLink(socialLink);
+    setIsSocialModalOpen(true);
+  };
+
+  const handleDeleteSocialLink = async (socialLinkId: string) => {
+    try {
+      const result = await deleteSocialLink(socialLinkId);
+      if (result?.sucess) {
+        setUserSocialLinks((prev) => prev.filter((link) => link.id !== socialLinkId));
+        toast.success("Social link removed successfully!");
+      } else {
+        toast.error(result?.error || "Failed to delete social link.");
+      }
+    } catch (error) {
+      console.error("Error deleting social link:", error);
+      toast.error("Failed to delete social link.");
+    }
+  };
+
+  const getSocialIcon = (platform: string) => {
+    switch (platform) {
+      case "instagram":
+        return Instagram;
+      case "youtube":
+        return Youtube;
+      case "email":
+        return Mail;
+      default:
+        return Mail;
     }
   };
 
@@ -329,32 +426,40 @@ const LinkForm = ({ username, bio , link}: Props) => {
           </div>
 
           {/* Social Links */}
-          <div className="mt-4 flex gap-2">
-            {socialLinks.map((social) => {
-              const Icon = social.icon;
+          <div className="mt-4 flex gap-2 flex-wrap">
+            {/* Display existing social links */}
+            {userSocialLinks.map((socialLink) => {
+              const Icon = getSocialIcon(socialLink.platform);
               return (
-                <Button
-                  key={social.platform}
-                  variant="outline"
-                  size="sm"
-                  className="h-9 w-9 p-0 bg-transparent"
-                  onClick={() => {
-                    socialLinkForm.setValue("platform", social.platform);
-                    // In a real app, you'd open a modal or form here
-                    const url = prompt(`Enter your ${social.platform} URL:`);
-                    if (url) {
-                      onSocialLinkSubmit({ platform: social.platform, url });
-                    }
-                  }}
-                >
-                  <Icon size={16} />
-                </Button>
+                <div key={socialLink.id} className="relative group">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-9 w-9 p-0 bg-transparent"
+                    onClick={() => window.open(socialLink.url, '_blank')}
+                  >
+                    <Icon size={16} />
+                  </Button>
+                  {/* Delete button on hover */}
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => handleDeleteSocialLink(socialLink.id)}
+                  >
+                    <X size={10} />
+                  </Button>
+                  {/* Edit on click (optional - you can add this functionality) */}
+                </div>
               );
             })}
+            
+            {/* Add new social link button */}
             <Button
               variant="outline"
               size="sm"
               className="h-9 w-9 p-0 border-dashed bg-transparent"
+              onClick={handleAddSocialLink}
             >
               <Plus size={16} />
             </Button>
@@ -365,21 +470,32 @@ const LinkForm = ({ username, bio , link}: Props) => {
       {/* Links Section */}
       <div className="space-y-3">
         {links.map((link, index) => (
-         <LinkCard key={link.id} link={link} onDelete={()=>{}} onEdit={()=>{}}/>
+          <LinkCard
+            key={link.id}
+            link={link}
+            onDelete={handleDeleteLink}
+            onEdit={handleEditLink}
+          />
         ))}
 
         {/* Add New Link */}
         {isAddingLink ? (
-         <LinkFormWithPreview 
-         onCancel={() => setIsAddingLink(false)}
-         onSubmit={onLinkSubmit}
-         defaultValues={{
-           title: "",
-           url: "",
-           description: "",
-         }}
-         
-         />
+          <LinkFormWithPreview
+            onCancel={() => {
+              setIsAddingLink(false);
+              setEditingLinkId(null);
+            }}
+            onSubmit={editingLinkId ? onEditLinkSubmit : onLinkSubmit}
+            defaultValues={
+              editingLinkId
+                ? links.find((l) => l.id === editingLinkId) || {
+                    title: "",
+                    url: "",
+                    description: "",
+                  }
+                : { title: "", url: "", description: "" }
+            }
+          />
         ) : (
           <Button
             onClick={() => setIsAddingLink(true)}
@@ -410,6 +526,17 @@ const LinkForm = ({ username, bio , link}: Props) => {
           View Archive
         </Button>
       </div>
+
+      {/* Social Link Modal */}
+      <SocialLinkModal
+        isOpen={isSocialModalOpen}
+        onClose={() => setIsSocialModalOpen(false)}
+        onSubmit={onSocialLinkSubmit}
+        defaultValues={editingSocialLink ? {
+          platform: editingSocialLink.platform,
+          url: editingSocialLink.url
+        } : undefined}
+      />
     </div>
   );
 };

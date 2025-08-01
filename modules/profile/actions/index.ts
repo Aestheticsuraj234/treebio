@@ -49,8 +49,10 @@ const currentUsername = await db.user.findUnique({
   },
   select:{
     username:true,
-    bio:true
-  }
+    bio:true,
+    socialLinks:true
+  },
+ 
 })
 
 return currentUsername;
