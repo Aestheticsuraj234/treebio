@@ -120,3 +120,12 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Wanted to implement the selection color as brow and text color as white */
+
+@layer components {
+  ::selection {
+    background-color: oklch(34.155% 0.1011 42.407);
+    color: oklch(0.985 0 0);
+  }
+}
