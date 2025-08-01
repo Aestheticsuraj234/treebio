@@ -1,16 +1,27 @@
 import { Button } from "@/components/ui/button";
 import { onBoardUser } from "@/modules/auth/actions";
 import ClaimLinkForm from "@/modules/home/components/cliam-link-form";
+import { getCurrentUsername } from "@/modules/profile/actions";
 
 import { UserButton } from "@clerk/nextjs";
+import { get } from "http";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default async function Home() {
   const user = await onBoardUser();
+  const profile = await getCurrentUsername();
+  
 
   if (!user.success) {
     return redirect("/sign-in");
   }
+
+ 
+   
+  
+
+ 
 
   return (
     <div className="min-h-screen ">
@@ -36,9 +47,16 @@ export default async function Home() {
 
           {/* CTA Button */}
           <div className="pt-4">
-            <Button size="lg" className="px-8 py-3 text-lg font-medium">
-              Get Started for Free
-            </Button>
+            {
+              user.success && profile?.username && (
+                <Link href="/admin/my-tree">
+                  <Button size="lg" className="px-8 py-3 text-lg font-medium cursor-pointer">
+                    TreeBio Dashboard
+                  </Button>
+                </Link>
+              )
+            }
+           
           </div>
         </section>
 
