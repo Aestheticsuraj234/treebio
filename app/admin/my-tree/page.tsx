@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { getAllLinkForUser, getPreviewData } from "@/modules/links/actions";
 import LinkForm from "@/modules/links/components/link-form";
 import PreviewFrame from "@/modules/links/components/preview-frame";
+import ShareMenu from "@/modules/links/components/share-menu";
 import { getCurrentUsername } from "@/modules/profile/actions";
 import { Brush, Share } from "lucide-react";
 
@@ -23,10 +24,7 @@ const Page = async () => {
             <Brush size={16} />
             Design
           </Button>
-          <Button size="default" className="gap-2">
-            <Share size={16} />
-            Share
-          </Button>
+          <ShareMenu link={profile?.username!} />
         </div>
       </div>
 
