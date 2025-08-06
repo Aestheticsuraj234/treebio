@@ -1,6 +1,6 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { ExternalLink, Star, Globe } from "lucide-react"
-import { currentUser } from "@clerk/nextjs/server"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ExternalLink, Star, Globe } from "lucide-react";
+import { currentUser } from "@clerk/nextjs/server";
 
 // Types
 interface Link {
@@ -36,9 +36,7 @@ const LinkPreviewItem = ({ link }: { link: Link }) => {
             {link.title}
           </p>
           {link.description && (
-            <p className="text-xs text-gray-500 truncate">
-              {link.description}
-            </p>
+            <p className="text-xs text-gray-500 truncate">{link.description}</p>
           )}
         </div>
         <ExternalLink size={14} className="text-gray-400 flex-shrink-0" />
@@ -49,16 +47,19 @@ const LinkPreviewItem = ({ link }: { link: Link }) => {
 
 const PreviewFrame = async ({ links }: PreviewFrameProps) => {
   const user = await currentUser();
-  
+
   // Get user profile data from links or fallback to Clerk user
   const userProfile = links[0]?.user || {};
-  const displayName = userProfile.username || 
-                     `${userProfile.firstName || ''}${userProfile.lastName ? ' ' + userProfile.lastName : ''}`.trim() ||
-                     user?.firstName ||
-                     'User';
-  
-  const userBio = userProfile.bio || '';
-  const userAvatar = userProfile.imageUrl || user?.imageUrl || '';
+  const displayName =
+    userProfile.username ||
+    `${userProfile.firstName || ""}${
+      userProfile.lastName ? " " + userProfile.lastName : ""
+    }`.trim() ||
+    user?.firstName ||
+    "User";
+
+  const userBio = userProfile.bio || "";
+  const userAvatar = userProfile.imageUrl || user?.imageUrl || "";
 
   return (
     <div className="flex flex-col items-center space-y-4">
@@ -84,8 +85,12 @@ const PreviewFrame = async ({ links }: PreviewFrameProps) => {
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <h2 className="font-semibold text-lg text-gray-900">{displayName}</h2>
-                  {userBio && <p className="text-sm text-gray-600 mt-1">{userBio}</p>}
+                  <h2 className="font-semibold text-lg text-gray-900">
+                    {displayName}
+                  </h2>
+                  {userBio && (
+                    <p className="text-sm text-gray-600 mt-1">{userBio}</p>
+                  )}
                 </div>
               </div>
 
@@ -96,10 +101,13 @@ const PreviewFrame = async ({ links }: PreviewFrameProps) => {
                 ))}
 
                 {/* Empty State */}
+
                 {links.length === 0 && (
                   <div className="text-center py-8">
                     <p className="text-gray-500 text-sm">No links added yet</p>
-                    <p className="text-gray-400 text-xs mt-1">Add some links to see them here</p>
+                    <p className="text-gray-400 text-xs mt-1">
+                      Add some links to see them here
+                    </p>
                   </div>
                 )}
               </div>
@@ -109,7 +117,7 @@ const PreviewFrame = async ({ links }: PreviewFrameProps) => {
                 <div className="bg-white rounded-lg border border-gray-200 p-2 mb-3">
                   <div className="flex items-center justify-center gap-2 text-xs text-gray-600">
                     <Star size={12} />
-                    <span>Join {displayName.toLowerCase()} on Linktree</span>
+                    <span>Join {displayName.toLowerCase()} on TreeBio</span>
                   </div>
                 </div>
                 <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
@@ -123,7 +131,7 @@ const PreviewFrame = async ({ links }: PreviewFrameProps) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default PreviewFrame
+export default PreviewFrame;
