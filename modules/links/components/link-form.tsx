@@ -512,7 +512,8 @@ const LinkForm = ({ username, bio, link, socialLinks: initialSocialLinks = [] }:
       <div className="flex items-center justify-between pt-4 border-t">
         <Button
           variant="outline"
-          className="flex items-center gap-2 bg-transparent"
+          onClick={() => toast.success("Feature coming soon!")}
+          className="flex items-center gap-2 bg-transparent cursor-pointer"
         >
           <FolderPlus size={16} />
           Add Collection
@@ -520,7 +521,8 @@ const LinkForm = ({ username, bio, link, socialLinks: initialSocialLinks = [] }:
 
         <Button
           variant="outline"
-          className="flex items-center gap-2 bg-transparent"
+          className="flex items-center gap-2 bg-transparent cursor-pointer"
+          onClick={() => toast.success("Feature coming soon!")}
         >
           <Archive size={16} />
           View Archive
