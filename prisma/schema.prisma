@@ -14,46 +14,77 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  clerkId   String   @unique
-  email     String   @unique
-  username  String?  @unique   // 👈 Optional & Unique
+  id       String  @id @default(cuid())
+  clerkId  String  @unique
+  email    String  @unique
+  username String? @unique // 👈 Optional & Unique
 
   firstName String?
   lastName  String?
   imageUrl  String?
 
-  bio      String?  @db.VarChar(500) // 👈 Optional bio with a max length of 500 characters
+  bio String? @db.VarChar(500) // 👈 Optional bio with a max length of 500 characters
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  links     Link[]
-  socialLinks SocialLink[]
+  links        Link[]
+  socialLinks  SocialLink[]
+  profileViews ProfileAnalytics[]
 }
 
 model Link {
-  id        String   @id @default(cuid())
-  title     String
-  url       String
+  id          String  @id @default(cuid())
+  title       String
+  url         String
   description String? @db.VarChar(500) // 👈 Optional description with a max length of 500 characters
-  clickCount Int      @default(0)
+  clickCount  Int     @default(0)
+
+  analytics LinkAnalytics[]
   userId    String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model LinkAnalytics {
+  id        String   @id @default(cuid())
+  linkId    String
+  clickedAt DateTime
+  clickerIp String   @db.VarChar(45)
+
+  link      Link     @relation(fields: [linkId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([linkId, clickerIp, clickedAt])
+  @@index([clickedAt, linkId])
 }
 
 model SocialLink {
-  id        String   @id @default(cuid())
-  platform  String
-  url       String
-  userId    String
+  id       String @id @default(cuid())
+  platform String
+  url      String
+  userId   String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ProfileAnalytics {
+  id        String   @id @default(cuid())
+  userId    String
+  visitedAt DateTime @default(now())
+  visitorIp String   @db.VarChar(45)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([visitedAt, userId])
 }
