@@ -94,6 +94,7 @@ export const getUserByUsername = async (username:string)=>{
       username:username
     },
    include:{
+    
     links:true,
     socialLinks:true
    }
