@@ -25,11 +25,11 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { set } from "zod";
 
-const ShareMenu = ({ link }: { link: string }) => {
+const ShareMenu = ({ username }: { username: string }) => {
   const [isCopied, setIsCopied] = useState(false);
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
-  const fullLink = `${origin}/${link}`;
+  const fullLink = `${origin}/${username}`;
 
   const handleCopy = () => {
    setIsCopied(true);

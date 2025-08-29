@@ -24,7 +24,7 @@ const Page = async () => {
             <Brush size={16} />
             Design
           </Button>
-          <ShareMenu link={links.data[0]?.url} />
+          <ShareMenu username={profile?.username!} />
         </div>
       </div>
 
