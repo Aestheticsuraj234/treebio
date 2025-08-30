@@ -3,8 +3,7 @@ import { onBoardUser } from "@/modules/auth/actions";
 import ClaimLinkForm from "@/modules/home/components/cliam-link-form";
 import { getCurrentUsername } from "@/modules/profile/actions";
 
-import { UserButton } from "@clerk/nextjs";
-import { get } from "http";
+
 import Link from "next/link";
 import { redirect } from "next/navigation";
 

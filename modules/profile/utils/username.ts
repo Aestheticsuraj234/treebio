@@ -1,4 +1,4 @@
-// Utility to generate username suggestions that do not exist in the db
+
 import { db } from "@/lib/db";
 
 export async function getAvailableUsernameSuggestions(base: string, count = 3, maxTries = 10) {

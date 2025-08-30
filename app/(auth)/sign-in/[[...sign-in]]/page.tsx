@@ -10,7 +10,7 @@ const Page = () => {
         one.
       </p>
       <div className="mt-6">
-        <SignIn />
+        <SignIn  />
       </div>
     </div>
   );
