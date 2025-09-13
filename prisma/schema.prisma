@@ -13,6 +13,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  ADMIN
+  CO_ADMIN
+  USER
+}
+
 model User {
   id       String  @id @default(cuid())
   clerkId  String  @unique
@@ -22,6 +28,7 @@ model User {
   firstName String?
   lastName  String?
   imageUrl  String?
+  role      Role  @default(USER)
 
   bio String? @db.VarChar(500) // 👈 Optional bio with a max length of 500 characters
 

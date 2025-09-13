@@ -18,7 +18,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Instagram, Youtube, Mail } from "lucide-react"
 
-// Define the schema for social links
+
 const socialLinkSchema = z.object({
   platform: z.enum(["instagram", "youtube", "email"], {
     error: "Please select a platform.",

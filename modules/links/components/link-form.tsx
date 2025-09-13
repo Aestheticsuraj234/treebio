@@ -189,11 +189,11 @@ const LinkForm = ({ username, bio, link, socialLinks: initialSocialLinks = [] }:
     }
   };
 
-  // Social link submit handler
+ 
   const onSocialLinkSubmit = async (data: SocialLinkFormData) => {
     try {
       if (editingSocialLink) {
-        // Edit existing social link
+        
         const result = await editSocialLink(data, editingSocialLink.id);
         if (result?.sucess) {
           setUserSocialLinks((prev) =>

@@ -1,12 +1,12 @@
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 
-import { SignInButton, SignUpButton } from "@clerk/nextjs"
-import { SignedIn, SignedOut } from "@clerk/nextjs"
+import { SignInButton, SignUpButton } from "@clerk/nextjs";
+import { SignedIn, SignedOut } from "@clerk/nextjs";
 
-import Link from "next/link"
-import Image from "next/image"
-import { ModeToggle } from "@/components/theme-toggle"
-import UserControl from "./user-control"
+import Link from "next/link";
+import Image from "next/image";
+import { ModeToggle } from "@/components/theme-toggle";
+import UserControl from "./user-control";
 
 export const Navbar = () => {
   return (
@@ -15,14 +15,15 @@ export const Navbar = () => {
         <div className="px-6 py-4 flex justify-between items-center">
           <Link href={"/"} className="flex items-center gap-2">
             <Image src={"/logo.svg"} alt="TreeBio" width={42} height={42} />
-            <span className="font-bold text-2xl tracking-widest text-[#41B313]">TreeBio</span>
+            <span className="font-bold text-2xl tracking-widest text-[#41B313]">
+              TreeBio
+            </span>
           </Link>
 
           <div className="flex items-center gap-4">
             <ModeToggle />
             <SignedIn>
-              <UserControl 
-               />
+              <UserControl />
             </SignedIn>
             <SignedOut>
               <div className="flex items-center gap-2">
@@ -36,7 +37,10 @@ export const Navbar = () => {
                   </Button>
                 </SignInButton>
                 <SignUpButton>
-                  <Button size="sm" className="text-sm font-medium bg-[#41B313] hover:bg-[#369611] text-white">
+                  <Button
+                    size="sm"
+                    className="text-sm font-medium bg-[#41B313] hover:bg-[#369611] text-white"
+                  >
                     Sign Up
                   </Button>
                 </SignUpButton>
@@ -46,5 +50,5 @@ export const Navbar = () => {
         </div>
       </div>
     </nav>
-  )
-}
+  );
+};

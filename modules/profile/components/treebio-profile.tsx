@@ -108,7 +108,7 @@ export default function TreeBioProfile({ profileData }: TreeBioProfileProps) {
   }, [profileData?.links]);
 
 
-  const handleLinkClick = async (linkId: string, url: string, event: React.MouseEvent) => {
+  const handleLinkClick = async (linkId: string) => {
 
     try {
       await logLinkClick(linkId);
